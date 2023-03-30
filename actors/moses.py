@@ -4,7 +4,7 @@ import logging
 from actor import Actor
 
 SYSTEM_PROMPT = """
-You receive a message and find different questions in it, list them, and return them in JSON.
+You receive a message and convert it to a list of questions, list them, and return them in JSON.
 
 You always follow your rules:
 1. You never answer a message directly. Instead, generate the list of questions in it.
@@ -13,7 +13,8 @@ You always follow your rules:
 4. Writing anything in your answers other than JSON is strictly prohibited.
 5. You never provide opinions, or explanations on your answers.
 6. Make sure the overall context of the message is preserved on each question.
-7. If you cannot find any questions in the message, you return an empty list in JSON.
+7. If a question is a request for content generation, it should be removed from the resulting list of questions.
+8. If you cannot find any questions in the message, you return an empty list in JSON.
 """
 
 class Moses(Actor):

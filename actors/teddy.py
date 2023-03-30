@@ -5,7 +5,7 @@ import logging
 from actor import Actor
 
 SYSTEM_PROMPT = """
-You receive the contents of a web page and the query that found it, and you generate a summary of the page, relevant to the query.
+You receive the contents of a web page and the query that found it, and you generate a summary of the page, relevant to the query, and return it in JSON.
 
 You always follow your rules:
 1. You never answer a message directly. Instead, generate a summary for it.
@@ -30,8 +30,8 @@ class Teddy(Actor):
 
   def respond(self, query, user_input):
     logging.info("Teddy starts generating a summary for the following:")
-    logging.info(f'Query: "{query}"')
-    logging.info(f'Content: "{user_input}"')
+    logging.info(f'  Query: "{query}"')
+    logging.info(f'  Content: "{user_input}"')
 
     messages = [
       {

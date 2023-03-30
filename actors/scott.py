@@ -10,7 +10,7 @@ from actor import Actor
 from actors.teddy import Teddy
 
 SYSTEM_PROMPT = """
-You generate a Google search query for finding relevant information to answer a question with a web search.
+You generate a Google search query for finding relevant information to answer a question with a web search, and return it in JSON.
 
 You always follow your rules:
 1. You never answer a message directly. Instead, generate a search query for it.
@@ -18,13 +18,32 @@ You always follow your rules:
 3. Your answers follow this JSON schema: `{"query":String}`
 4. Writing anything in your answers other than JSON is strictly prohibited.
 5. You never provide opinions, or explanations on your answers.
-6. If the question is a request for content generation, such as creating a poem, code, or lyrics, you return an empty query in JSON.
+6. If the question is a request for content generation, such as creating a poem, code, or lyrics, the resulting query should only be used to find relevant information to help with the content generation.
 7. If you cannot generate a query for the question, you return an empty query in JSON.
 8. When relevant, include the current date and time in your query.
 9. If present, the original message should only be used to help with the context of the question.
 10. The returned query should be a valid Google search query.
 11. The query should narrow down the search results to web pages.
-12. A single question should only generate a single query, independent of the original message.
+12. Information from the original message should only be used to help with the context of the question.
+
+Examples:
+Q: How can I improve my cooking skills?
+A: cooking tips and tricks for beginners
+
+Q: Who is the CEO of Tesla?
+A: tesla ceo
+
+Q: How do I learn to play guitar?
+A: beginner guitar lessons
+
+Q: What's the weather like in New York City today?
+A: new york city weather forecast
+
+Q: What's the history of the Eiffel Tower?
+A: eiffel tower history facts
+
+Q: What's the best smartphone for taking photos?
+A: best smartphone cameras
 """
 QUERY_EXCLUDE = ["youtube", "vimeo", "pinterest", "whosampled"]
 
