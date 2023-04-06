@@ -10,40 +10,51 @@ from actor import Actor
 from actors.teddy import Teddy
 
 SYSTEM_PROMPT = """
-You generate a Google search query for finding relevant information to answer a question with a web search, and return it in JSON.
+You are Scott. Scott generates a Google search query for finding relevant information to answer a question with a web search, and return it in JSON.
 
-You always follow your rules:
-1. You never answer a message directly. Instead, generate a search query for it.
-2. Your answers are always written in JSON.
-3. Your answers follow this JSON schema: `{"query":String}`
-4. Writing anything in your answers other than JSON is strictly prohibited.
-5. You never provide opinions, or explanations on your answers.
-6. If the question is a request for content generation, such as creating a poem, code, or lyrics, the resulting query should only be used to find relevant information to help with the content generation.
-7. If you cannot generate a query for the question, you return an empty query in JSON.
-8. When relevant, include the current date and time in your query.
-9. If present, the original message should only be used to help with the context of the question.
-10. The returned query should be a valid Google search query.
-11. The query should narrow down the search results to web pages.
-12. Information from the original message should only be used to help with the context of the question.
+Scott always follow these rules:
+1. Scott never answer sa message directly. Instead, he generates a search query for it.
+2. Scott's answers are always written in JSON and follow this schema: `{"query": String}`
+3. Writing anything in Scott's answers other than JSON is strictly prohibited.
+4. Scott never provides opinions, or explanations on his answers.
+5. If the question is a request for content generation, such as creating a poem, code, or lyrics, the resulting query should only be used to find relevant information to help with the content generation.
+6. If Scott cannot generate a query for the question, Scott returns an empty query in JSON as such: `{"query": ""}`
+7. If present, the original message should only be used to help with the context of the question.
+8. The returned query should be a valid Google search query.
+9. The query should narrow down the search results to web pages.
+10. Information from the original message should only be used to help with the context of the question.
 
-Examples:
-Q: How can I improve my cooking skills?
-A: cooking tips and tricks for beginners
+### Human: {"question":"How can I improve my cooking skills?"}
 
-Q: Who is the CEO of Tesla?
-A: tesla ceo
+### Assistant: {"query":"cooking tips and tricks for beginners"}
 
-Q: How do I learn to play guitar?
-A: beginner guitar lessons
+### Human: {"question":"Who is the CEO of Tesla?"}
 
-Q: What's the weather like in New York City today?
-A: new york city weather forecast
+### Assistant: {"query":"tesla ceo"}
 
-Q: What's the history of the Eiffel Tower?
-A: eiffel tower history facts
+### Human: {"question":"I love chicken."}
 
-Q: What's the best smartphone for taking photos?
-A: best smartphone cameras
+### Assistant: {"query":""}
+
+### Human: {"question":"How do I learn to play guitar?"}
+
+### Assistant: {"query":"beginner guitar lessons"}
+
+### Human: {"question":"What's the weather like in New York City today?"}
+
+### Assistant: {"query":"new york city weather forecast"}
+
+### Human: {"question":"Pizza, pasta, put it in a blender, and you've got a pizza pasta blender."}
+
+### Assistant: {"query":""}
+
+### Human: {"question":"What's the history of the Eiffel Tower?"}
+
+### Assistant: {"query":"eiffel tower history facts"}
+
+### Human: {"question":"What's the best smartphone for taking photos?"}
+
+### Assistant: {"query":"best smartphone cameras"}
 """
 QUERY_EXCLUDE = ["youtube", "vimeo", "pinterest", "whosampled"]
 
@@ -51,37 +62,32 @@ class Scott(Actor):
   def __init__(self):
     super().__init__(
       system_prompt=SYSTEM_PROMPT,
-      temp=0.7,
+      temp=0.41,
       max_tokens=128,
-      top_p=1,
-      frequency_penalty=0,
-      presence_penalty=0,
-      stop=["###"],
     )
 
   def respond(self, user_input, original_message=None):
-    if original_message is not None:
-      messages = [
-        {
-          "role": "user",
-          "content": f'Question: {user_input}\nOriginal message: {original_message}',
-        },
-      ]
-    else:
-      messages = [
-        {
-          "role": "user",
-          "content": f'Question: {user_input}',
-        },
-      ]
+    # if original_message is not None:
+    #   messages = [
+    #     f'{{"question":"{user_input}","message":"{original_message}"}}',
+    #   ]
+    # else:
+    #   messages = [
+    #     f'{{"question":"{user_input}"}}',
+    #   ]
 
     # Include the current date and time in the information sent to Scott
-    date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Get Scott's answer
-    answer = super().respond(messages,
-                             custom_system_prompt=SYSTEM_PROMPT + f"\n\nCurrent date and time: {date}.")
-    answer = answer.choices[0].message.content
+    answer = super().respond(f'{{"question":"{user_input}"}}',
+                             custom_lead="### Assistant: {")
+    answer = "{" + answer
+
+    answer = answer.replace("“", '"')  # The tokenizer is not perfect
+    answer = answer.replace("”", '"')
+
+    logging.info(f'Scott generated the following: "{answer}"')
 
     # Check if the answer is valid JSON and return it
     try:
